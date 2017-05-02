@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='my_service.proto',
   package='handson',
   syntax='proto3',
-  serialized_pb=_b('\n\x10my_service.proto\x12\x07handson\"\'\n\tMyRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\"5\n\nMyResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03sex\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\x05\x32{\n\tMyService\x12\x36\n\tMyMethod1\x12\x12.handson.MyRequest\x1a\x13.handson.MyResponse\"\x00\x12\x36\n\tMyMethod2\x12\x12.handson.MyRequest\x1a\x13.handson.MyResponse\"\x00\x42\x32\n\x18\x63om.alexandreesl.handsonB\x0eMyServiceProtoP\x01\xa2\x02\x03HLWb\x06proto3')
+  serialized_pb=_b('\n\x10my_service.proto\x12\x07handson\"\'\n\tMyRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\"5\n\nMyResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03sex\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\x05\x32\xb7\x01\n\tMyService\x12\x36\n\tMyMethod1\x12\x12.handson.MyRequest\x1a\x13.handson.MyResponse\"\x00\x12\x36\n\tMyMethod2\x12\x12.handson.MyRequest\x1a\x13.handson.MyResponse\"\x00\x12:\n\tMyMethod3\x12\x12.handson.MyRequest\x1a\x13.handson.MyResponse\"\x00(\x01\x30\x01\x42\x32\n\x18\x63om.alexandreesl.handsonB\x0eMyServiceProtoP\x01\xa2\x02\x03HLWb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -156,6 +156,11 @@ try:
           request_serializer=MyRequest.SerializeToString,
           response_deserializer=MyResponse.FromString,
           )
+      self.MyMethod3 = channel.stream_stream(
+          '/handson.MyService/MyMethod3',
+          request_serializer=MyRequest.SerializeToString,
+          response_deserializer=MyResponse.FromString,
+          )
 
 
   class MyServiceServicer(object):
@@ -170,6 +175,11 @@ try:
       context.set_details('Method not implemented!')
       raise NotImplementedError('Method not implemented!')
 
+    def MyMethod3(self, request_iterator, context):
+      context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+      context.set_details('Method not implemented!')
+      raise NotImplementedError('Method not implemented!')
+
 
   def add_MyServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -180,6 +190,11 @@ try:
         ),
         'MyMethod2': grpc.unary_unary_rpc_method_handler(
             servicer.MyMethod2,
+            request_deserializer=MyRequest.FromString,
+            response_serializer=MyResponse.SerializeToString,
+        ),
+        'MyMethod3': grpc.stream_stream_rpc_method_handler(
+            servicer.MyMethod3,
             request_deserializer=MyRequest.FromString,
             response_serializer=MyResponse.SerializeToString,
         ),
@@ -199,6 +214,8 @@ try:
       context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
     def MyMethod2(self, request, context):
       context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
+    def MyMethod3(self, request_iterator, context):
+      context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
 
 
   class BetaMyServiceStub(object):
@@ -213,6 +230,8 @@ try:
     def MyMethod2(self, request, timeout, metadata=None, with_call=False, protocol_options=None):
       raise NotImplementedError()
     MyMethod2.future = None
+    def MyMethod3(self, request_iterator, timeout, metadata=None, with_call=False, protocol_options=None):
+      raise NotImplementedError()
 
 
   def beta_create_MyService_server(servicer, pool=None, pool_size=None, default_timeout=None, maximum_timeout=None):
@@ -224,14 +243,17 @@ try:
     request_deserializers = {
       ('handson.MyService', 'MyMethod1'): MyRequest.FromString,
       ('handson.MyService', 'MyMethod2'): MyRequest.FromString,
+      ('handson.MyService', 'MyMethod3'): MyRequest.FromString,
     }
     response_serializers = {
       ('handson.MyService', 'MyMethod1'): MyResponse.SerializeToString,
       ('handson.MyService', 'MyMethod2'): MyResponse.SerializeToString,
+      ('handson.MyService', 'MyMethod3'): MyResponse.SerializeToString,
     }
     method_implementations = {
       ('handson.MyService', 'MyMethod1'): face_utilities.unary_unary_inline(servicer.MyMethod1),
       ('handson.MyService', 'MyMethod2'): face_utilities.unary_unary_inline(servicer.MyMethod2),
+      ('handson.MyService', 'MyMethod3'): face_utilities.stream_stream_inline(servicer.MyMethod3),
     }
     server_options = beta_implementations.server_options(request_deserializers=request_deserializers, response_serializers=response_serializers, thread_pool=pool, thread_pool_size=pool_size, default_timeout=default_timeout, maximum_timeout=maximum_timeout)
     return beta_implementations.server(method_implementations, options=server_options)
@@ -246,14 +268,17 @@ try:
     request_serializers = {
       ('handson.MyService', 'MyMethod1'): MyRequest.SerializeToString,
       ('handson.MyService', 'MyMethod2'): MyRequest.SerializeToString,
+      ('handson.MyService', 'MyMethod3'): MyRequest.SerializeToString,
     }
     response_deserializers = {
       ('handson.MyService', 'MyMethod1'): MyResponse.FromString,
       ('handson.MyService', 'MyMethod2'): MyResponse.FromString,
+      ('handson.MyService', 'MyMethod3'): MyResponse.FromString,
     }
     cardinalities = {
       'MyMethod1': cardinality.Cardinality.UNARY_UNARY,
       'MyMethod2': cardinality.Cardinality.UNARY_UNARY,
+      'MyMethod3': cardinality.Cardinality.STREAM_STREAM,
     }
     stub_options = beta_implementations.stub_options(host=host, metadata_transformer=metadata_transformer, request_serializers=request_serializers, response_deserializers=response_deserializers, thread_pool=pool, thread_pool_size=pool_size)
     return beta_implementations.dynamic_stub(channel, 'handson.MyService', cardinalities, options=stub_options)

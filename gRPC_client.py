@@ -1,3 +1,6 @@
+import random
+import time
+
 import grpc
 
 import my_service_pb2 as my_service_pb2
@@ -17,6 +20,20 @@ class gRPCClient():
         print('method 2')
         return self.stub.MyMethod2(my_service_pb2.MyRequest(name=name, code=code))
 
+    def method3(self, req):
+        print('method 3')
+        return self.stub.MyMethod3(req)
+
+
+def generateRequests():
+    reqs = [my_service_pb2.MyRequest(name='Alexandre', code=123), my_service_pb2.MyRequest(name='Maria', code=123),
+            my_service_pb2.MyRequest(name='Eleuterio', code=123), my_service_pb2.MyRequest(name='Lucebiane', code=123),
+            my_service_pb2.MyRequest(name='Ana Carolina', code=123)]
+
+    for req in reqs:
+        yield req
+        time.sleep(random.uniform(2, 4))
+
 
 def main():
     print('main')
@@ -25,6 +42,11 @@ def main():
 
     print(client.method1('Alexandre', 123))
     print(client.method2('Maria', 123))
+
+    res = client.method3(generateRequests())
+
+    for re in res:
+        print(re)
 
 
 if __name__ == '__main__':

@@ -23,6 +23,13 @@ class gRPCServer(my_service_pb2_grpc.MyServiceServicer):
         print(request.code * 12)
         return my_service_pb2.MyResponse(name=request.name, sex='F', code=1234)
 
+    def MyMethod3(self, request_iterator, context):
+        for req in request_iterator:
+            print(req.name)
+            print(req.code)
+
+            yield my_service_pb2.MyResponse(name=req.name, sex='M', code=123)
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

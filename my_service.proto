@@ -16,6 +16,9 @@ service MyService {
     rpc MyMethod2 (MyRequest) returns (MyResponse) {
     }
 
+    rpc MyMethod3 (stream MyRequest) returns (stream MyResponse) {
+    }
+
 }
 
 message MyRequest {
